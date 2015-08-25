@@ -55,7 +55,11 @@ end
 # Is IJulia being built from a debug build? If so, add "debug" to the description.
 debugdesc = ccall(:jl_is_debugbuild,Cint,())==1 ? "-debug" : ""
 
-juliakspec = joinpath(chomp(readall(`$ipython locate`)), "kernels", "julia-$(VERSION.major).$(VERSION.minor)"*debugdesc)
+juliakspec = joinpath((ipyvers >= v"4.0" ?
+                       joinpath(get(ENV, "HOME", ""), ".local", "share", "jupyter") :
+                       chomp(readall(`$ipython locate`))),
+                      "kernels",
+                      "julia-$(VERSION.major).$(VERSION.minor)"*debugdesc)
 
 binary_name = @windows? "julia.exe":"julia"
 kernelcmd_array = [escape_string(joinpath(JULIA_HOME,("$binary_name"))), "-i"]
